@@ -1,14 +1,17 @@
 using Godot;
 using System;
 
-public class Player : RigidBody2D {
-	// Declare member variables here. Examples:
-	// private int a = 2;
-	// private string b = "text";
-
-	// Called when the node enters the scene tree for the first time.
+public class Player : KinematicBody2D {
+	const int gravity = 1500;
+	const int speed = 250;
+	const int jumpSpeed = 500;
+	const int maxFallSpeed = 750;
+	bool isOnFloor;
+	bool isDoubleJumpAvailable;
+	Vector2 velocity = Vector2.Zero;
+	AnimatedSprite sprite;
 	public override void _Ready() {
-
+		sprite = GetNode("AnimatedSprite") as AnimatedSprite;
 	}
 
 	public override void _PhysicsProcess(float delta) {
@@ -16,13 +19,33 @@ public class Player : RigidBody2D {
 			(Input.IsActionPressed("left") ? -1 : 0) + (Input.IsActionPressed("right") ? 1 : 0),
 			Input.IsActionPressed("down") ? 1 : 0
 		);
-		//var inputDirection = ne
-		ApplyCentralImpulse(new Vector2(inputDirection.x, 0));
-	}
 
-//  // Called every frame. 'delta' is the elapsed time since the previous frame.
-//  public override void _Process(float delta)
-//  {
-//
-//  }
+		velocity.x = speed * inputDirection.x;
+		var gravityScale = 1;
+		if (isOnFloor) {
+			isDoubleJumpAvailable = true;
+		}
+		if (Input.IsActionJustPressed("jump")) {
+			var canJump = isOnFloor;
+			if (!canJump && isDoubleJumpAvailable) {
+				canJump = true;
+				isDoubleJumpAvailable = false;
+			}
+			if (canJump) {
+				velocity.y = -jumpSpeed;
+			}
+		} else if (!Input.IsActionPressed("jump") && !isOnFloor) {
+			gravityScale = 2;
+		}
+		if (!isOnFloor) {
+			velocity.y += gravityScale * gravity * delta;
+			velocity.y = Mathf.Min(velocity.y, maxFallSpeed);
+		}
+		velocity = MoveAndSlide(velocity, Vector2.Up);
+		isOnFloor = IsOnFloor();
+
+		if (inputDirection.x != 0) {
+			sprite.FlipH = inputDirection.x == -1;
+		}
+	}
 }
