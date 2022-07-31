@@ -1,12 +1,11 @@
 using Godot;
-using System;
 
 public class Knight : Area2D {
 	public override void _Ready() {
-		Connect("body_entered", this, "onBodyEntered");
+		Connect("body_entered", this, "OnBodyEntered");
 	}
 
-	void onBodyEntered(Node body) {
+	void OnBodyEntered(Node body) {
 		if (body is Player player) {
 			player.Hurt();
 		}

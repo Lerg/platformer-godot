@@ -58,7 +58,7 @@ namespace AnimationFSM {
 	}
 
 	public class HurtState : State {
-		int health = 0;
+		int health;
 		public HurtState(string animationName = "hurt") : base(animationName) {}
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public override bool IsMatchingConditions(in Conditions conditions) {
