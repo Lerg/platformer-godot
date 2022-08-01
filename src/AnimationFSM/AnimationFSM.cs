@@ -45,6 +45,10 @@ namespace AnimationFSM {
 			states.Add(state);
 		}
 
+		public void AddStates(IEnumerable<State> states) {
+			this.states.AddRange(states);
+		}
+
 		// Determine which state should be active.
 		public void Update() {
 			foreach (var state in states) {

@@ -33,15 +33,17 @@ public class Player : KinematicBody2D {
 		sprite.Connect("animation_finished", this, "OnAnimationFinished");
 
 		// States added first have higher priority.
-		fsm.AddState(new AnimationFSM.DeathState());
-		fsm.AddState(new AnimationFSM.HurtState());
-		fsm.AddState(new AnimationFSM.AttackState());
-		fsm.AddState(new AnimationFSM.DefenseState());
-		fsm.AddState(new AnimationFSM.JumpState());
-		fsm.AddState(new AnimationFSM.FallState());
-		fsm.AddState(new AnimationFSM.RunState());
-		fsm.AddState(new AnimationFSM.CrouchState());
-		fsm.AddState(new AnimationFSM.IdleState());
+		fsm.AddStates(new AnimationFSM.State[] {
+			new AnimationFSM.DeathState(),
+			new AnimationFSM.HurtState(),
+			new AnimationFSM.AttackState(),
+			new AnimationFSM.DefenseState(),
+			new AnimationFSM.JumpState(),
+			new AnimationFSM.FallState(),
+			new AnimationFSM.RunState(),
+			new AnimationFSM.CrouchState(),
+			new AnimationFSM.IdleState()
+		});
 	}
 
 	void OnAnimationFinished() {
