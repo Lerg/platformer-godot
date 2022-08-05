@@ -5,7 +5,7 @@ public class Knight : Area2D {
 		Connect("body_entered", this, "OnBodyEntered");
 	}
 
-	void OnBodyEntered(Node body) {
+	private void OnBodyEntered(Node body) {
 		if (body is Player player) {
 			player.Hurt();
 		}

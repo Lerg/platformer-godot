@@ -39,19 +39,19 @@ namespace AnimationFSM {
 	public class FSM {
 		public Conditions conditions;
 		public State currentState;
-		List<State> states = new List<State>();
+		private List<State> _states = new List<State>();
 
 		public void AddState(State state) {
-			states.Add(state);
+			_states.Add(state);
 		}
 
 		public void AddStates(IEnumerable<State> states) {
-			this.states.AddRange(states);
+			_states.AddRange(states);
 		}
 
 		// Determine which state should be active.
 		public void Update() {
-			foreach (var state in states) {
+			foreach (var state in _states) {
 				if (state.IsMatchingConditions(in conditions)) {
 					currentState = state;
 					break;

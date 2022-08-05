@@ -2,38 +2,38 @@ using Godot;
 using System;
 
 public class Player : KinematicBody2D {
-	const int gravity = 1500;
+	private const int _gravity = 1500;
 	// Run speed.
-	const int speed = 250;
-	const int jumpSpeed = 500;
+	private const int _speed = 250;
+	private const int _jumpSpeed = 500;
 	// Clamp falling speed.
-	const int maxFallSpeed = 750;
+	private const int _maxFallSpeed = 750;
 	// True when character is standing on floor.
-	bool isOnFloor;
+	private bool _isOnFloor;
 	// True when character can double jump.
-	bool isDoubleJumpAvailable;
+	private bool _isDoubleJumpAvailable;
 	// Current body velocity.
-	Vector2 velocity = Vector2.Zero;
+	private Vector2 _velocity = Vector2.Zero;
 	// Character sprite.
-	AnimatedSprite sprite;
+	private AnimatedSprite _sprite;
 	// State machine to switch sprite animations.
-	readonly AnimationFSM.FSM fsm = new AnimationFSM.FSM();
+	private readonly AnimationFSM.FSM _fsm = new AnimationFSM.FSM();
 	// True when the current sprite animation has finished playing.
-	bool isAnimationFinished;
+	private bool _isAnimationFinished;
 	// Character health.
-	int health = 10;
+	private int _health = 10;
 	// Prevent player control for a short time after being attacked.
-	const float hurtDuration = 0.2f;
-	float hurtTimeout;
+	private const float _hurtDuration = 0.2f;
+	private float _hurtTimeout;
 	// Left -1 or right 1.
-	int headingDirection = 1;
+	private int _headingDirection = 1;
 
 	public override void _Ready() {
-		sprite = GetNode("AnimatedSprite") as AnimatedSprite;
-		sprite.Connect("animation_finished", this, "OnAnimationFinished");
+		_sprite = GetNode("AnimatedSprite") as AnimatedSprite;
+		_sprite.Connect("animation_finished", this, "OnAnimationFinished");
 
 		// States added first have higher priority.
-		fsm.AddStates(new AnimationFSM.State[] {
+		_fsm.AddStates(new AnimationFSM.State[] {
 			new AnimationFSM.DeathState(),
 			new AnimationFSM.HurtState(),
 			new AnimationFSM.AttackState(),
@@ -46,23 +46,23 @@ public class Player : KinematicBody2D {
 		});
 	}
 
-	void OnAnimationFinished() {
-		isAnimationFinished = true;
+	private void OnAnimationFinished() {
+		_isAnimationFinished = true;
 	}
 
 	// The character is attacked by another entity.
 	public void Hurt() {
-		if (health > 0) {
-			health -= 1;
-			hurtTimeout = hurtDuration;
+		if (_health > 0) {
+			_health -= 1;
+			_hurtTimeout = _hurtDuration;
 		}
 	}
 
 	public override void _PhysicsProcess(float delta) {
 		// Was the character attacked?
-		var isHurt = hurtTimeout > 0;
+		var isHurt = _hurtTimeout > 0;
 		// Disable input if being hurt or dead.
-		var isInputEnabled = !isHurt && health > 0;
+		var isInputEnabled = !isHurt && _health > 0;
 		// Gravity is asjusted when jumping or falling.
 		var gravityScale = 1;
 		// Player movement input, e.g. WASD or d-pad.
@@ -74,84 +74,84 @@ public class Player : KinematicBody2D {
 
 			// Heading can't be 0.
 			if (inputDirection.x != 0) {
-				headingDirection = inputDirection.x;
+				_headingDirection = inputDirection.x;
 			}
 
 			// Set the current x velocity based on the input.
-			velocity.x = speed * inputDirection.x;
+			_velocity.x = _speed * inputDirection.x;
 
 			// Reset double jump ability when on floor.
-			if (isOnFloor) {
-				isDoubleJumpAvailable = true;
+			if (_isOnFloor) {
+				_isDoubleJumpAvailable = true;
 			}
 
 			// Jump when key is pressed and the character is on floor or when double jump is available.
 			if (Input.IsActionJustPressed("jump")) {
-				var canJump = isOnFloor;
-				if (!canJump && isDoubleJumpAvailable) {
+				var canJump = _isOnFloor;
+				if (!canJump && _isDoubleJumpAvailable) {
 					canJump = true;
-					isDoubleJumpAvailable = false;
+					_isDoubleJumpAvailable = false;
 				}
 				if (canJump) {
-					velocity.y = -jumpSpeed;
+					_velocity.y = -_jumpSpeed;
 				}
 			}
 		} else {
 			// Stop X movement when input is disabled.
-			velocity.x = 0;
+			_velocity.x = 0;
 		}
 
 		// Knockback the character when being hurt.
 		// Move in the opposite of heading direction and up a little.
 		if (isHurt) {
-			velocity.x = -0.5f * speed * headingDirection;
+			_velocity.x = -0.5f * _speed * _headingDirection;
 			// When was just hit.
-			if (hurtTimeout == hurtDuration) {
-				velocity.y = -1f * speed;
+			if (_hurtTimeout == _hurtDuration) {
+				_velocity.y = -1f * _speed;
 			}
 			// Countdown the hurt timer.
-			hurtTimeout -= delta;
+			_hurtTimeout -= delta;
 		}
 
 		// When falling or jumping increase the gravity. That way jumping feels faster and more precise.
 		// Also controls the height of the jump when the jump button is released.
-		if (!(isInputEnabled && Input.IsActionPressed("jump")) && !isOnFloor) {
+		if (!(isInputEnabled && Input.IsActionPressed("jump")) && !_isOnFloor) {
 			gravityScale = 2;
 		}
 
 		// Apply gravity and clamp falling speed.
-		if (!isOnFloor) {
-			velocity.y += gravityScale * gravity * delta;
-			velocity.y = Mathf.Min(velocity.y, maxFallSpeed);
+		if (!_isOnFloor) {
+			_velocity.y += gravityScale * _gravity * delta;
+			_velocity.y = Mathf.Min(_velocity.y, _maxFallSpeed);
 		}
 
 		// Move Godot's KinematicBody.
-		velocity = MoveAndSlide(velocity, Vector2.Up);
+		_velocity = MoveAndSlide(_velocity, Vector2.Up);
 		// IsOnFloor() is available only after MoveAndSlide().
-		isOnFloor = IsOnFloor();
+		_isOnFloor = IsOnFloor();
 
 		// Flip the sprite according to the heading.
-		sprite.FlipH = headingDirection == -1;
+		_sprite.FlipH = _headingDirection == -1;
 
 		// Set animation FSM conditions.
-		ref var conditions = ref fsm.conditions;
+		ref var conditions = ref _fsm.conditions;
 		conditions.inputDirection = inputDirection;
-		conditions.moveDirection.x = Math.Sign(velocity.x);
-		conditions.moveDirection.y = Math.Sign(velocity.y);
-		conditions.currentState = fsm.currentState;
-		conditions.isAnimationFinished = isAnimationFinished;
+		conditions.moveDirection.x = Math.Sign(_velocity.x);
+		conditions.moveDirection.y = Math.Sign(_velocity.y);
+		conditions.currentState = _fsm.currentState;
+		conditions.isAnimationFinished = _isAnimationFinished;
 		conditions.isAttacking = Input.IsActionJustPressed("attack");
 		conditions.isDefending = Input.IsActionPressed("defense");
-		conditions.isOnFloor = isOnFloor;
-		conditions.health = health;
+		conditions.isOnFloor = _isOnFloor;
+		conditions.health = _health;
 		// Determine which is the current animation state.
-		fsm.Update();
+		_fsm.Update();
 
 		// Play new animation when animation state is changed.
-		var currentState = fsm.currentState;
-		if (sprite.Animation.Hash() != currentState.animationNameHash) {
-			sprite.Play(currentState.animationName);
-			isAnimationFinished = false;
+		var currentState = _fsm.currentState;
+		if (_sprite.Animation.Hash() != currentState.animationNameHash) {
+			_sprite.Play(currentState.animationName);
+			_isAnimationFinished = false;
 		}
 	}
 }
