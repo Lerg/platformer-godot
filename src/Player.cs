@@ -14,12 +14,6 @@ public class Player : KinematicBody2D {
 	private bool _isDoubleJumpAvailable;
 	// Current body velocity.
 	private Vector2 _velocity = Vector2.Zero;
-	// Character sprite.
-	private AnimatedSprite _sprite;
-	// State machine to switch sprite animations.
-	private readonly AnimationFSM.FSM _fsm = new AnimationFSM.FSM();
-	// True when the current sprite animation has finished playing.
-	private bool _isAnimationFinished;
 	// Character health.
 	private int _health = 10;
 	// Prevent player control for a short time after being attacked.
@@ -27,6 +21,12 @@ public class Player : KinematicBody2D {
 	private float _hurtTimeout;
 	// Left -1 or right 1.
 	private int _headingDirection = 1;
+	// Character sprite.
+	private AnimatedSprite _sprite;
+	// True when the current sprite animation has finished playing.
+	private bool _isAnimationFinished;
+	// State machine to switch sprite animations.
+	private readonly AnimationFSM.FSM _fsm = new AnimationFSM.FSM();
 
 	public override void _Ready() {
 		_sprite = GetNode("AnimatedSprite") as AnimatedSprite;
@@ -138,12 +138,12 @@ public class Player : KinematicBody2D {
 		conditions.inputDirection = inputDirection;
 		conditions.moveDirection.x = Math.Sign(_velocity.x);
 		conditions.moveDirection.y = Math.Sign(_velocity.y);
-		conditions.currentState = _fsm.currentState;
-		conditions.isAnimationFinished = _isAnimationFinished;
 		conditions.isAttacking = Input.IsActionJustPressed("attack");
 		conditions.isDefending = Input.IsActionPressed("defense");
 		conditions.isOnFloor = _isOnFloor;
 		conditions.health = _health;
+		conditions.currentState = _fsm.currentState;
+		conditions.isAnimationFinished = _isAnimationFinished;
 		// Determine which is the current animation state.
 		_fsm.Update();
 

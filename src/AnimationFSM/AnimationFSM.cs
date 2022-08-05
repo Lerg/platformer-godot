@@ -5,12 +5,12 @@ namespace AnimationFSM {
 	// Conditions that all states are checking if they should be active.
 	public struct Conditions {
 		public State currentState;
-		public bool isAnimationFinished;
-		public bool isOnFloor;
-		public bool isAttacking;
-		public bool isDefending;
 		public int health;
 		public Vector2i inputDirection;
+		public bool isAnimationFinished;
+		public bool isAttacking;
+		public bool isDefending;
+		public bool isOnFloor;
 		public Vector2i moveDirection;
 	}
 
