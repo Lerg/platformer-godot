@@ -745,7 +745,7 @@ script = ExtResource( 12 )
 [node name="AnimatedSprite" type="AnimatedSprite" parent="TileMap/PlayerBody"]
 position = Vector2( 542, 498 )
 frames = SubResource( 15 )
-animation = "hurt"
+animation = "idle"
 
 [node name="Camera2D" type="Camera2D" parent="TileMap/PlayerBody/AnimatedSprite"]
 current = true
